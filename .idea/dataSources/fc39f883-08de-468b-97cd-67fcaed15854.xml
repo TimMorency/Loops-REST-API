@@ -2880,15 +2880,18 @@
     <column id="689" parent="72" name="loop_id">
       <data-type>int(11)|0</data-type>
     </column>
-    <index id="690" parent="72" name="coordinate_loops_LoopId_fk">
+    <column id="690" parent="72" name="position">
+      <data-type>int(11)|0</data-type>
+    </column>
+    <index id="691" parent="72" name="coordinate_loops_LoopId_fk">
       <columns>loop_id</columns>
       <desc-columns></desc-columns>
     </index>
-    <key id="691" parent="72" name="PRIMARY">
+    <key id="692" parent="72" name="PRIMARY">
       <columns>coordinate_id</columns>
       <primary>1</primary>
     </key>
-    <foreign-key id="692" parent="72" name="coordinate_loops_LoopId_fk">
+    <foreign-key id="693" parent="72" name="coordinate_loops_LoopId_fk">
       <columns>loop_id</columns>
       <ref-key>~.loops.PRIMARY</ref-key>
       <cascade-update-rule>restrict</cascade-update-rule>

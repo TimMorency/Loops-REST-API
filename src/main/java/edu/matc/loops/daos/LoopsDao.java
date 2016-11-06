@@ -18,20 +18,23 @@ public class LoopsDao {
         List<LoopsObj> rms = new ArrayList<LoopsObj>();
         Session session = SessionFactoryProvider.getSessionFactory().openSession();
         rms = session.createCriteria(LoopsObj.class).list();
+        session.close();
         return rms;
     }
 
     public LoopsObj getLoopsObj(int id) {
         Session session = SessionFactoryProvider.getSessionFactory().openSession();
         LoopsObj rm = (LoopsObj) session.get(LoopsObj.class, id);
+        session.close();
         return rm;
     }
 
-    public LoopsObj insertUser(LoopsObj rm) {
+    public LoopsObj insertLoopsObj(LoopsObj rm) {
         Session session = SessionFactoryProvider.getSessionFactory().openSession();
         session.beginTransaction();
         session.save(rm);
         session.getTransaction().commit();
+        session.close();
         return rm;
     }
 
@@ -39,15 +42,17 @@ public class LoopsDao {
         Session session = SessionFactoryProvider.getSessionFactory().openSession();
         Criteria criteria = session.createCriteria(LoopsObj.class);
         criteria.add(Restrictions.eq(fieldName, searchVal));
+        session.close();
         return criteria.list();
     }
 
-    public LoopsObj deleteUser(int id) {
+    public LoopsObj deleteLoopsObj(int id) {
         LoopsObj rm = getLoopsObj(id);
         Session session = SessionFactoryProvider.getSessionFactory().openSession();
         session.beginTransaction();
         session.delete(rm);
         session.getTransaction().commit();
+        session.close();
         return rm;
     }
 

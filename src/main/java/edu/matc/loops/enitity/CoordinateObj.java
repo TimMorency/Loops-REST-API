@@ -22,15 +22,17 @@ public class CoordinateObj {
     private int yCoord;
     @Column(name = "loop_id")
     private int loopId;
-
+    @Column(name = "position")
+    private int position;
     public CoordinateObj() {
     }
 
-    public CoordinateObj(int coordinate_id, int xCoord, int yCoord, int loopId) {
+    public CoordinateObj(int coordinate_id, int xCoord, int yCoord, int loopId, int position) {
         this.coordinate_id = coordinate_id;
         this.xCoord = xCoord;
         this.yCoord = yCoord;
         this.loopId = loopId;
+        this.position = position;
     }
 
     public int getCoordinate_id() {
@@ -65,6 +67,14 @@ public class CoordinateObj {
         this.loopId = loopId;
     }
 
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
     @Override
     public String toString() {
         return "CoordinateObj{" +
@@ -72,6 +82,7 @@ public class CoordinateObj {
                 ", xCoord=" + xCoord +
                 ", yCoord=" + yCoord +
                 ", loopId=" + loopId +
+                ", position=" + position +
                 '}';
     }
 }

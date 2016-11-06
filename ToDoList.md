@@ -15,3 +15,15 @@
 
 - shapes.
 - search form.
+
+
+## add in
+
+- add position on coord
+- daos tests
+- instead of generating add into db
+- form page/ form params
+- html return
+- presentation
+- user guide
+- droplet to host.

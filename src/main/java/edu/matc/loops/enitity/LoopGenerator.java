@@ -1,6 +1,8 @@
 package edu.matc.loops.enitity;
 
 
+import edu.matc.loops.daos.CoordinateDao;
+import edu.matc.loops.daos.LoopsDao;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -60,13 +62,22 @@ public class LoopGenerator {
         int oppositeDirection = Integer.MAX_VALUE;
         Loop loop;
         List<Integer> commonFactors = getFactors(getRouteDistance());
-
+        LoopsDao dao = new LoopsDao();
+        CoordinateDao cDao = new CoordinateDao();
 
         /* Run until the number of loops we want is generated */
         while(generateLoops){
 
             //Create new loop
             loop = new Loop(legSize, routeDistance);
+            LoopsObj loopObj = new LoopsObj();
+
+            loopObj.setRouteDistance(routeDistance);
+            loopObj.setLeglength(legSize);
+
+            ArrayList<CoordinateObj> coords = new ArrayList<CoordinateObj>();
+
+
 
             //Push first coordinate
             int xCurrent = xMid;
@@ -75,9 +86,12 @@ public class LoopGenerator {
 
             generateLegs = true;
 
+            int counter = 0;
 
             /* Keep looking for route until we reach max distance */
             while(generateLegs){
+
+                counter ++;
 
                 //Create random direction (0-3)
                 randomDirection = (int) (Math.random()*4);
@@ -93,6 +107,12 @@ public class LoopGenerator {
 
                     //Add coordinate to loop
                     loop.addCoordinate(new Coordinate(xCurrent,yCurrent));
+                    CoordinateObj co = new CoordinateObj();
+                    co.setPosition(counter);
+                    co.setxCoord(xCurrent);
+                    co.setyCoord(yCurrent);
+                    coords.add(co);
+
                 }else{
                     break;
                 }
@@ -125,6 +145,18 @@ public class LoopGenerator {
                 if(getVariableLegSize()){
                     legSize = randomInt(1,commonFactors.get(commonFactors.size()-1));
                 }
+
+            }
+
+            //inserting the loops and its coordinates here
+            LoopsObj insertLoop = new LoopsObj();
+            loopObj.setNumLegs(counter);
+            insertLoop = dao.insertLoopsObj(loopObj);
+
+            for(CoordinateObj c : coords) {
+
+                c.setLoopId(insertLoop.getLoopId());
+                cDao.insertCoordinate(c);
 
             }
 
@@ -286,93 +318,5 @@ public class LoopGenerator {
     public Loops getLoops() { return loops; }
     public void setLoops(Loops loops) { this.loops = loops; }
 
-
-
-
-
-    //Output Methods for Terminal
-
-    /*
-    public void writeLoopsToTerminal(){
-
-        //Loop Info
-        System.out.println("------------LOOP INFO-------------");
-        System.out.println();
-        System.out.println("Route Distance:  " + routeDistance);
-        System.out.println("Leg Length:      " + legLength);
-        System.out.println("Number of Loops: " + loops.getLoops().size());
-        System.out.println();
-        System.out.println("----------------------------------");
-        System.out.println();
-
-        //Print all coordinates first
-        System.out.println("::Coordinates::");
-        System.out.println();
-        for(Loop l: loops.getLoops()){
-            for(Coordinate c : l.getCoordinates()){
-                System.out.print("(");
-                if(c.getX() < 10){
-                    System.out.print(" "+c.getX());
-                }else{
-                    System.out.print(c.getX());
-                }
-                System.out.print(",");
-                if(c.getY() < 10){
-                    System.out.print(c.getY()+" ");
-                }else{
-                    System.out.print(c.getY());
-                }
-                System.out.print(") ");
-            }
-            System.out.println();
-        }
-        System.out.println();
-
-
-        System.out.println("::Grid w/ Coordinates::");
-        System.out.println();
-        //For each loop
-        for(int l = 0; l < loops.getLoops().size(); l++){
-            writeLoopToTerminal(loops.getLoop(l));
-        }
-    }*/
-
-    /*
-    private void writeLoopToTerminal(Loop loop){
-        setUpRouteGridForTerminal();
-
-        //Print Coordinates
-        for(int c = 0; c < loop.getNumLegs(); c++){
-            System.out.print(loop.getCoordinate(c).toString());
-            if(c < 10) {
-                routeGrid[loop.getCoordinate(c).getX()][loop.getCoordinate(c).getY()] = Integer.toString(c) + "  ";
-            }else{
-                routeGrid[loop.getCoordinate(c).getX()][loop.getCoordinate(c).getY()] = Integer.toString(c) + " ";
-            }
-        }
-
-        System.out.println();
-        System.out.println();
-
-        //Print grid
-        for(int y = yMax -1; y > yMin; y--){
-            for(int x = xMin; x < xMax; x++){
-                System.out.print(routeGrid[x][y]);
-            }
-            System.out.println();
-        }
-
-        System.out.println();
-        System.out.println();
-    }
-
-    private void setUpRouteGridForTerminal(){
-        for(int y = yMin; y < yMax; y++){
-            for(int x = xMin; x < xMax; x++){
-                routeGrid[x][y] = ".  ";
-            }
-        }
-    }
-    */
 
 }
