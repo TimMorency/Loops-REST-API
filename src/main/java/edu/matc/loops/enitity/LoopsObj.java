@@ -22,15 +22,18 @@ public class LoopsObj {
     private int leglength;
     @Column(name = "route_distance")
     private int routeDistance;
+    @Column(name = "loop_info_id")
+    private int loopInfoId;
 
     public LoopsObj() {
     }
 
-    public LoopsObj(int loopId, int numLegs, int leglength, int routeDistance) {
+    public LoopsObj(int loopId, int numLegs, int loopInfoId, int leglength, int routeDistance) {
         this.loopId = loopId;
         this.numLegs = numLegs;
         this.leglength = leglength;
         this.routeDistance = routeDistance;
+        this.loopInfoId = loopInfoId;
     }
 
     public int getLoopId() {
@@ -65,6 +68,14 @@ public class LoopsObj {
         this.routeDistance = routeDistance;
     }
 
+    public int getLoopInfoId() {
+        return loopInfoId;
+    }
+
+    public void setLoopInfoId(int loopInfoId) {
+        this.loopInfoId = loopInfoId;
+    }
+
     @Override
     public String toString() {
         return "LoopsObj{" +
@@ -72,6 +83,7 @@ public class LoopsObj {
                 ", numLegs=" + numLegs +
                 ", leglength=" + leglength +
                 ", routeDistance=" + routeDistance +
+                ", loopInfoId=" + loopInfoId +
                 '}';
     }
 }

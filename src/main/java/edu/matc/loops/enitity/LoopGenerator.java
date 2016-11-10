@@ -2,11 +2,11 @@ package edu.matc.loops.enitity;
 
 
 import edu.matc.loops.daos.CoordinateDao;
+import edu.matc.loops.daos.LoopInfoDao;
 import edu.matc.loops.daos.LoopsDao;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * LoopGenerator class is used to randomly generate loops.
@@ -45,11 +45,24 @@ public class LoopGenerator {
     private boolean variableLegSize;
 
     private Loops loops;
-
+    private Map<LoopsObj, List<CoordinateObj>> loopAndCoord;
 
     public LoopGenerator(){}
 
     public void generateLoops(){
+
+        LoopInfoDao lid = new LoopInfoDao();
+        LoopInfoObj lio = new LoopInfoObj();
+        lio.setxSize(xSize);
+        lio.setySize(ySize);
+        lio.setNumLoops(numLoops);
+        lio.setFailCount(failCount);
+        lio.setAllowDoubleBack(allowDoubleBack);
+        lio.setAllowSameCoordinates(allowSameCoordinates);
+        lio.setAllowThroughStart(allowThroughStart);
+        lio.setVariableLegSize(variableLegSize);
+
+        LoopInfoObj lioInsert = lid.insertLoopInfo(lio);
 
         loops = new Loops();
         int sameCounter = 0;
@@ -64,6 +77,7 @@ public class LoopGenerator {
         List<Integer> commonFactors = getFactors(getRouteDistance());
         LoopsDao dao = new LoopsDao();
         CoordinateDao cDao = new CoordinateDao();
+        loopAndCoord = new HashMap<LoopsObj, List<CoordinateObj>>();
 
         /* Run until the number of loops we want is generated */
         while(generateLoops){
@@ -74,6 +88,7 @@ public class LoopGenerator {
 
             loopObj.setRouteDistance(routeDistance);
             loopObj.setLeglength(legSize);
+            loopObj.setLoopInfoId(lio.getId());
 
             ArrayList<CoordinateObj> coords = new ArrayList<CoordinateObj>();
 
@@ -127,9 +142,24 @@ public class LoopGenerator {
                     //Try to add loop and set added
                     added = loops.addLoop(loop);
 
+
+
                     if(added){
                         sameCounter = 0;
                         failCounter = 0;
+
+                        //inserting the loops and its coordinates here
+                        LoopsObj insertLoop = new LoopsObj();
+
+                        loopObj.setNumLegs(counter);
+                        insertLoop = dao.insertLoopsObj(loopObj);
+
+                        for(CoordinateObj c : coords) {
+                            c.setLoopId(insertLoop.getLoopId());
+                        }
+                        loopAndCoord.put(insertLoop, cDao.insertList(coords));
+
+
                     }else{
                         sameCounter++;
                     }
@@ -148,17 +178,7 @@ public class LoopGenerator {
 
             }
 
-            //inserting the loops and its coordinates here
-            LoopsObj insertLoop = new LoopsObj();
-            loopObj.setNumLegs(counter);
-            insertLoop = dao.insertLoopsObj(loopObj);
 
-            for(CoordinateObj c : coords) {
-
-                c.setLoopId(insertLoop.getLoopId());
-                cDao.insertCoordinate(c);
-
-            }
 
             //Check to see if we have generated the number of loops we wanted
             if(loops.getLoops().size() == numLoops){
@@ -318,5 +338,11 @@ public class LoopGenerator {
     public Loops getLoops() { return loops; }
     public void setLoops(Loops loops) { this.loops = loops; }
 
+    public Map<LoopsObj, List<CoordinateObj>> getLoopAndCoord() {
+        return loopAndCoord;
+    }
 
+    public void setLoopAndCoord(Map<LoopsObj, List<CoordinateObj>> loopAndCoord) {
+        this.loopAndCoord = loopAndCoord;
+    }
 }

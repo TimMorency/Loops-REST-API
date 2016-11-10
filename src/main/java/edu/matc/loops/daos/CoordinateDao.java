@@ -29,21 +29,34 @@ public class CoordinateDao {
         return rm;
     }
 
-    public CoordinateObj insertCoordinate(CoordinateObj rm) {
+    public CoordinateObj insertCoordinate(CoordinateObj rm1) {
         Session session = SessionFactoryProvider.getSessionFactory().openSession();
         session.beginTransaction();
-        session.save(rm);
+        session.save(rm1);
         session.getTransaction().commit();
         session.close();
-        return rm;
+        return rm1;
+    }
+
+    public List<CoordinateObj> insertList (List<CoordinateObj> coords) {
+        Session session = SessionFactoryProvider.getSessionFactory().openSession();
+        session.beginTransaction();
+        for(CoordinateObj c : coords) {
+            session.save(c);
+        }
+        session.getTransaction().commit();
+        session.close();
+        return coords;
     }
 
     public List<CoordinateObj> searchCoordinateObj(String fieldName, int searchVal) {
         Session session = SessionFactoryProvider.getSessionFactory().openSession();
         Criteria criteria = session.createCriteria(CoordinateObj.class);
         criteria.add(Restrictions.eq(fieldName, searchVal));
+        System.out.println(criteria.list());
+        List<CoordinateObj> coords = criteria.list();
         session.close();
-        return criteria.list();
+        return coords;
     }
 
     public CoordinateObj deleteCoordinate(int id) {

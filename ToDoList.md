@@ -27,3 +27,7 @@
 - presentation
 - user guide
 - droplet to host.
+
+
+ - search by all form fields/ add to loops object.
+ 

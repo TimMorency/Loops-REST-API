@@ -82,7 +82,7 @@
 <form action="test/loops/getWithID" method="post">
     <!-- adding search for old loops once database functionality is added-->
     <h2>Find Loop By Id(in progress)</h2>
-    ID: <input type="number" name="id" />
+    ID: <input type="number" name="Id" />
     <br/>
     <button type="submit" value="Submit Form">Submit</button>
 </form>

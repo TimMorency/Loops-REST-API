@@ -9,10 +9,7 @@ import edu.matc.loops.enitity.*;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
@@ -69,37 +66,23 @@ public class LoopsService {
         LoopsObj lo = new LoopsObj();
         List<CoordinateObj> coords = new ArrayList<CoordinateObj>();
         lo = lDao.getLoopsObj(id);
+        logger.info(lo.getLoopId());
         coords = cDao.searchCoordinateObj("loopId", lo.getLoopId());
-        String result = "";
-        if(returnType == "HTML") {
-            String html = "";
-            //Coordinates
-            html += "<div>";
-            html += "<h2>Coordinates</h2>";
-            //loop info
-            html += "</div>";
 
-            html += "<table>";
-            for (CoordinateObj c : coords) {
-                html += "(" + c.getxCoord() + "," + c.getyCoord() + ")";
+        String returner = lo.toString().substring(0, lo.toString().length() - 1);
+        returner += ",Coordinates=[";
+        for(CoordinateObj c : coords) {
+            if(coords.indexOf(c)+1 != coords.size()) {
+                returner += c.toString() + ", ";
+            } else {
+                returner += c.toString();
             }
-            html += "</td></tr>";
-            html += "</table>";
-
-        } else {
-            result = lo.toString();
-
-            result += "[";
-            for(CoordinateObj c : coords) {
-                result += c.toString();
-
-            }
-            result += "]";
-
         }
+        returner += "]}";
+        //Return response
         return Response
                 .status(200)
-                .entity(result).build();
+                .entity(returner).build();
     }
 
     @POST
@@ -229,8 +212,8 @@ public class LoopsService {
         //Test loop generator:
         String html = "";
         html += getHTMLInfo();
-        html += getHTMLCoordinatesAll();
-        html += getHTMLGrids();
+        html += getHTMLCoordinatesAll(loopGenerator.getLoopAndCoord());
+        html += getHTMLGrids(loopGenerator.getLoopAndCoord());
         return html;
     }
 
@@ -261,30 +244,30 @@ public class LoopsService {
         return html;
     }
 
-    private String getHTMLCoordinatesAll(){
+    private String getHTMLCoordinatesAll(Map<LoopsObj, List<CoordinateObj>> loopsAndCoords){
         String html="";
         //Coordinates
         html += "<div>";
         html += "<h2>Coordinates</h2>";
-        for(Loop l: loopGenerator.getLoops().getLoops()){
-            html += getHTMLCoordinates(l);
+        for(LoopsObj l: loopsAndCoords.keySet()){
+            html += l.getLoopId() + " " + getHTMLCoordinates(l, loopsAndCoords);
         }
         html += "</div>";
         return html;
     }
 
-    private String getHTMLCoordinates(Loop loop){
+    private String getHTMLCoordinates(LoopsObj l, Map<LoopsObj, List<CoordinateObj>> lAndC){
         String html = "";
         html += "<table>";
-        for(Coordinate c : loop.getCoordinates()){
-            html += "("+c.getX()+","+c.getY()+")";
+        for(CoordinateObj c : lAndC.get(l)){
+            html += "("+c.getxCoord()+","+c.getyCoord()+")";
         }
         html += "</td></tr>";
         html += "</table>";
         return html;
     }
 
-    private String getHTMLGrids(){
+    private String getHTMLGrids(Map<LoopsObj, List<CoordinateObj>> loopsAndCoords){
         String html="";
         String[][] grid;
 
@@ -297,8 +280,8 @@ public class LoopsService {
         html += "<h2>Grids</h2>";
 
         int i = 1;
-        for(Loop l: loopGenerator.getLoops().getLoops()){
-            html += getHTMLCoordinates(l);
+        for(LoopsObj l: loopsAndCoords.keySet()){
+            html += getHTMLCoordinates(l, loopsAndCoords);
 
             grid = getHTMLGridForLoop(l);
 
@@ -319,7 +302,7 @@ public class LoopsService {
         return html;
     }
 
-    private String[][] getHTMLGridForLoop(Loop loop){
+    private String[][] getHTMLGridForLoop(LoopsObj loop){
 
         int xSize = loopGenerator.getxSize();
         int ySize = loopGenerator.getySize();
@@ -333,9 +316,9 @@ public class LoopsService {
         }
 
         //Add in coordinate points
-        List<Coordinate> coordinates = loop.getCoordinates();
+        List<CoordinateObj> coordinates = loopGenerator.getLoopAndCoord().get(loop);
         for(int i = 0; i<coordinates.size(); i++) {
-            routeGrid[coordinates.get(i).getX()][coordinates.get(i).getY()] = Integer.toString(i);
+            routeGrid[coordinates.get(i).getxCoord()][coordinates.get(i).getyCoord()] = String.valueOf(coordinates.get(i).getPosition());
         }
         return routeGrid;
     }
