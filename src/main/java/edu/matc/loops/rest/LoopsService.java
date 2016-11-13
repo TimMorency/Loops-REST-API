@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.matc.loops.daos.CoordinateDao;
+import edu.matc.loops.daos.LoopInfoDao;
 import edu.matc.loops.daos.LoopsDao;
 import edu.matc.loops.enitity.*;
 import org.apache.log4j.Logger;
@@ -56,8 +57,38 @@ public class LoopsService {
     }
 
     @POST
+    @Path("/getWithIDParams")
+    public Response findLoopByIDParams(@QueryParam("Id") int id,
+                                     @DefaultValue("JSON") @QueryParam("returnType") String returnType) {
+
+        LoopsDao lDao = new LoopsDao();
+        CoordinateDao cDao = new CoordinateDao();
+
+        LoopsObj lo = new LoopsObj();
+        List<CoordinateObj> coords = new ArrayList<CoordinateObj>();
+        lo = lDao.getLoopsObj(id);
+        logger.info(lo.getLoopId());
+        coords = cDao.searchCoordinateObj("loopId", lo.getLoopId());
+
+        String returner = lo.toString().substring(0, lo.toString().length() - 1);
+        returner += ",Coordinates=[";
+        for(CoordinateObj c : coords) {
+            if(coords.indexOf(c)+1 != coords.size()) {
+                returner += c.toString() + ", ";
+            } else {
+                returner += c.toString();
+            }
+        }
+        returner += "]}";
+        //Return response
+        return Response
+                .status(200)
+                .entity(returner).build();
+    }
+
+    @POST
     @Path("/getWithID")
-    public Response findLoopByID(@FormParam("Id") int id,
+    public Response findLoopByIDform(@FormParam("Id") int id,
                                  @DefaultValue("JSON") @FormParam("returnType") String returnType) {
 
         LoopsDao lDao = new LoopsDao();
@@ -83,6 +114,139 @@ public class LoopsService {
         return Response
                 .status(200)
                 .entity(returner).build();
+    }
+
+    @POST
+    @Path("/searchWithLoopInfo")
+    public Response searchByLoopInfo(@FormParam("x_size") int xSize,
+                                     @FormParam("y_size") int ySize,
+                                     @FormParam("num_loops") int numLoops,
+                                     @FormParam("fail_count") int failCount,
+                                     @FormParam("allow_double_back") boolean allowDoubleBack,
+                                     @FormParam("allow_same_coordinates") boolean allowSameCoordinates,
+                                     @FormParam("allow_through_start") boolean allowThroughStart,
+                                     @FormParam("variable_leg_size") boolean variableLegSize) {
+
+        LoopInfoDao lid = new LoopInfoDao();
+        LoopsDao ld = new LoopsDao();
+        CoordinateDao cd = new CoordinateDao();
+
+        Map<String, String> pushMap = new HashMap<String, String>();
+
+        if(xSize > 0){
+            pushMap.put("x_size", String.valueOf(xSize));
+        }
+        if(ySize > 0){
+            pushMap.put("y_size", String.valueOf(ySize));
+        }
+        if(numLoops > 0){
+            pushMap.put("num_loops", String.valueOf(numLoops));
+        }
+        if(failCount > 0){
+            pushMap.put("fail_count", String.valueOf(failCount));
+        }
+        pushMap.put("allow_double_back", String.valueOf(allowDoubleBack));
+        pushMap.put("allow_same_coordinates", String.valueOf(allowSameCoordinates));
+        pushMap.put("allow_through_start", String.valueOf(allowThroughStart));
+        pushMap.put("variable_leg_size", String.valueOf(variableLegSize));
+
+        List<LoopInfoObj> lios = lid.searchLoopInfoMultipleRestrictions(pushMap);
+        List<Integer> loopInfoIds = new ArrayList<Integer>();
+        for(LoopInfoObj l : lios) {
+            loopInfoIds.add(l.getId());
+        }
+        List<LoopsObj> los = ld.getLoopsFromLoopInfo(loopInfoIds);
+        List<Integer> loIds = new ArrayList<Integer>();
+        for(LoopsObj lo : los) {
+            loIds.add(lo.getLoopId());
+        }
+        List<CoordinateObj> coords = cd.searchInClause(loIds);
+
+        return Response
+                .status(200)
+                .entity(jsonReturnOfLoopInfo(lios, los, coords)).build();
+
+
+
+    }
+
+    public String jsonReturnOfLoopInfo(List<LoopInfoObj> lios, List<LoopsObj> los,
+                                       List<CoordinateObj> cos) {
+        String totalString = "";
+        for(LoopInfoObj lio : lios) {
+            String returner = lio.toString().substring(0, lio.toString().length() -1);
+            returner += ", Loops=[";
+            for(LoopsObj lo : los) {
+                returner += lo.toString().substring(0, lo.toString().length()-1);
+                returner += ",Coordinates=[";
+                for(CoordinateObj co : cos) {
+                    if(co.getPosition() != (lo.getRouteDistance() / lo.getNumLegs())) {
+                        returner += co.toString() + ",";
+                    } else {
+                        returner += co.toString();
+                    }
+                }
+                returner += "]";
+            }
+            returner += "}";
+            totalString += returner + " ";
+        }
+
+
+        return totalString;
+    }
+
+
+
+    @POST
+    @Path("/searchWithLoopInfoParams")
+    public Response searchByLoopInfoParams(@QueryParam("x_size") int xSize,
+                                     @QueryParam("y_size") int ySize,
+                                     @QueryParam("num_loops") int numLoops,
+                                     @QueryParam("fail_count") int failCount,
+                                     @QueryParam("allow_double_back") boolean allowDoubleBack,
+                                     @QueryParam("allow_same_coordinates") boolean allowSameCoordinates,
+                                     @QueryParam("allow_through_start") boolean allowThroughStart,
+                                     @QueryParam("variable_leg_size") boolean variableLegSize) {
+
+        LoopInfoDao lid = new LoopInfoDao();
+        LoopsDao ld = new LoopsDao();
+        CoordinateDao cd = new CoordinateDao();
+
+        Map<String, String> pushMap = new HashMap<String, String>();
+
+        if(xSize > 0){
+            pushMap.put("x_size", String.valueOf(xSize));
+        }
+        if(ySize > 0){
+            pushMap.put("y_size", String.valueOf(ySize));
+        }
+        if(numLoops > 0){
+            pushMap.put("num_loops", String.valueOf(numLoops));
+        }
+        if(failCount > 0){
+            pushMap.put("fail_count", String.valueOf(failCount));
+        }
+        pushMap.put("allow_double_back", String.valueOf(allowDoubleBack));
+        pushMap.put("allow_same_coordinates", String.valueOf(allowSameCoordinates));
+        pushMap.put("allow_through_start", String.valueOf(allowThroughStart));
+        pushMap.put("variable_leg_size", String.valueOf(variableLegSize));
+
+        List<LoopInfoObj> lios = lid.searchLoopInfoMultipleRestrictions(pushMap);
+        List<Integer> loopInfoIds = new ArrayList<Integer>();
+        for(LoopInfoObj l : lios) {
+            loopInfoIds.add(l.getId());
+        }
+        List<LoopsObj> los = ld.getLoopsFromLoopInfo(loopInfoIds);
+        List<Integer> loIds = new ArrayList<Integer>();
+        for(LoopsObj lo : los) {
+            loIds.add(lo.getLoopId());
+        }
+        List<CoordinateObj> coords = cd.searchInClause(loIds);
+
+        return Response
+                .status(200)
+                .entity(jsonReturnOfLoopInfo(lios, los, coords)).build();
     }
 
     @POST

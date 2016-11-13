@@ -49,6 +49,15 @@ public class CoordinateDao {
         return coords;
     }
 
+    public List<CoordinateObj> searchInClause(List<Integer> loopsId) {
+        Session session = SessionFactoryProvider.getSessionFactory().openSession();
+        Criteria criteria = session.createCriteria(CoordinateObj.class);
+        criteria.add(Restrictions.in("loop_id", loopsId));
+        List<CoordinateObj> coords = criteria.list();
+        session.close();
+        return coords;
+    }
+
     public List<CoordinateObj> searchCoordinateObj(String fieldName, int searchVal) {
         Session session = SessionFactoryProvider.getSessionFactory().openSession();
         Criteria criteria = session.createCriteria(CoordinateObj.class);

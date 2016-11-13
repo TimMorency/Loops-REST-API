@@ -22,6 +22,14 @@ public class LoopsDao {
         return rms;
     }
 
+    public List<LoopsObj> getLoopsFromLoopInfo(List<Integer> loopInfos) {
+        Session session = SessionFactoryProvider.getSessionFactory().openSession();
+        Criteria criteria = session.createCriteria(LoopsObj.class);
+        criteria.add(Restrictions.in("loop_info_id", loopInfos));
+        session.close();
+        return criteria.list();
+    }
+
     public LoopsObj getLoopsObj(int id) {
         Session session = SessionFactoryProvider.getSessionFactory().openSession();
         LoopsObj rm = (LoopsObj) session.get(LoopsObj.class, id);
