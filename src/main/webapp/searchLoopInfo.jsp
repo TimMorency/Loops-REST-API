@@ -12,7 +12,7 @@
 </head>
 <body>
 
-<form method="post" action="/service/loops/searchWithLoopInfo">
+<form method="post" action="service/loops/searchWithLoopInfo">
     <table>
         <tr>
             <td>X Size</td>
@@ -74,6 +74,8 @@
         </tr>
 
     </table>
+
+    <input type="submit" value="Search Loop Info" />
 </form>
 
 </body>

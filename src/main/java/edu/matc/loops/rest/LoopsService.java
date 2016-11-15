@@ -134,21 +134,21 @@ public class LoopsService {
         Map<String, String> pushMap = new HashMap<String, String>();
 
         if(xSize > 0){
-            pushMap.put("x_size", String.valueOf(xSize));
+            pushMap.put("xSize", String.valueOf(xSize));
         }
         if(ySize > 0){
-            pushMap.put("y_size", String.valueOf(ySize));
+            pushMap.put("ySize", String.valueOf(ySize));
         }
         if(numLoops > 0){
-            pushMap.put("num_loops", String.valueOf(numLoops));
+            pushMap.put("numLoops", String.valueOf(numLoops));
         }
         if(failCount > 0){
-            pushMap.put("fail_count", String.valueOf(failCount));
+            pushMap.put("failCount", String.valueOf(failCount));
         }
-        pushMap.put("allow_double_back", String.valueOf(allowDoubleBack));
-        pushMap.put("allow_same_coordinates", String.valueOf(allowSameCoordinates));
-        pushMap.put("allow_through_start", String.valueOf(allowThroughStart));
-        pushMap.put("variable_leg_size", String.valueOf(variableLegSize));
+        pushMap.put("allowDoubleBack", String.valueOf(allowDoubleBack));
+        pushMap.put("allowSameCoordinates", String.valueOf(allowSameCoordinates));
+        pushMap.put("allowThroughStart", String.valueOf(allowThroughStart));
+        pushMap.put("variableLegSize", String.valueOf(variableLegSize));
 
         List<LoopInfoObj> lios = lid.searchLoopInfoMultipleRestrictions(pushMap);
         List<Integer> loopInfoIds = new ArrayList<Integer>();
@@ -156,12 +156,15 @@ public class LoopsService {
             loopInfoIds.add(l.getId());
         }
         List<LoopsObj> los = ld.getLoopsFromLoopInfo(loopInfoIds);
-        List<Integer> loIds = new ArrayList<Integer>();
-        for(LoopsObj lo : los) {
-            loIds.add(lo.getLoopId());
-        }
-        List<CoordinateObj> coords = cd.searchInClause(loIds);
 
+        List<CoordinateObj> coords = new ArrayList<CoordinateObj>();
+        if(los.size() != 0) {
+            List<Integer> loIds = new ArrayList<Integer>();
+            for (LoopsObj lo : los) {
+                loIds.add(lo.getLoopId());
+            }
+            coords = cd.searchInClause(loIds);
+        }
         return Response
                 .status(200)
                 .entity(jsonReturnOfLoopInfo(lios, los, coords)).build();
@@ -180,14 +183,16 @@ public class LoopsService {
                 returner += lo.toString().substring(0, lo.toString().length()-1);
                 returner += ",Coordinates=[";
                 for(CoordinateObj co : cos) {
-                    if(co.getPosition() != (lo.getRouteDistance() / lo.getNumLegs())) {
+                    if(co.getPosition() != (lo.getRouteDistance() / lo.getLeglength())) {
                         returner += co.toString() + ",";
                     } else {
                         returner += co.toString();
                     }
                 }
                 returner += "]";
+                returner += "}";
             }
+            returner += "]";
             returner += "}";
             totalString += returner + " ";
         }
@@ -216,21 +221,21 @@ public class LoopsService {
         Map<String, String> pushMap = new HashMap<String, String>();
 
         if(xSize > 0){
-            pushMap.put("x_size", String.valueOf(xSize));
+            pushMap.put("xSize", String.valueOf(xSize));
         }
         if(ySize > 0){
-            pushMap.put("y_size", String.valueOf(ySize));
+            pushMap.put("ySize", String.valueOf(ySize));
         }
         if(numLoops > 0){
-            pushMap.put("num_loops", String.valueOf(numLoops));
+            pushMap.put("numLoops", String.valueOf(numLoops));
         }
         if(failCount > 0){
-            pushMap.put("fail_count", String.valueOf(failCount));
+            pushMap.put("failCount", String.valueOf(failCount));
         }
-        pushMap.put("allow_double_back", String.valueOf(allowDoubleBack));
-        pushMap.put("allow_same_coordinates", String.valueOf(allowSameCoordinates));
-        pushMap.put("allow_through_start", String.valueOf(allowThroughStart));
-        pushMap.put("variable_leg_size", String.valueOf(variableLegSize));
+        pushMap.put("allowDoubleBack", String.valueOf(allowDoubleBack));
+        pushMap.put("allowSameCoordinates", String.valueOf(allowSameCoordinates));
+        pushMap.put("allowThroughStart", String.valueOf(allowThroughStart));
+        pushMap.put("variableLegSize", String.valueOf(variableLegSize));
 
         List<LoopInfoObj> lios = lid.searchLoopInfoMultipleRestrictions(pushMap);
         List<Integer> loopInfoIds = new ArrayList<Integer>();

@@ -61,8 +61,8 @@ public class LoopGenerator {
         lio.setAllowSameCoordinates(allowSameCoordinates);
         lio.setAllowThroughStart(allowThroughStart);
         lio.setVariableLegSize(variableLegSize);
+        LoopInfoObj lioInsert = new LoopInfoObj();
 
-        LoopInfoObj lioInsert = lid.insertLoopInfo(lio);
 
         loops = new Loops();
         int sameCounter = 0;
@@ -78,6 +78,7 @@ public class LoopGenerator {
         LoopsDao dao = new LoopsDao();
         CoordinateDao cDao = new CoordinateDao();
         loopAndCoord = new HashMap<LoopsObj, List<CoordinateObj>>();
+        boolean firstLoopIn = false;
 
         /* Run until the number of loops we want is generated */
         while(generateLoops){
@@ -88,7 +89,7 @@ public class LoopGenerator {
 
             loopObj.setRouteDistance(routeDistance);
             loopObj.setLeglength(legSize);
-            loopObj.setLoopInfoId(lio.getId());
+
 
             ArrayList<CoordinateObj> coords = new ArrayList<CoordinateObj>();
 
@@ -145,12 +146,17 @@ public class LoopGenerator {
 
 
                     if(added){
+
+                        if(firstLoopIn == false) {
+                            lioInsert = lid.insertLoopInfo(lio);
+                            firstLoopIn = true;
+                        }
                         sameCounter = 0;
                         failCounter = 0;
 
                         //inserting the loops and its coordinates here
                         LoopsObj insertLoop = new LoopsObj();
-
+                        loopObj.setLoopInfoId(lioInsert.getId());
                         loopObj.setNumLegs(counter);
                         insertLoop = dao.insertLoopsObj(loopObj);
 

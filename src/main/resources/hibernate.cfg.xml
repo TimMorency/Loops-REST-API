@@ -16,7 +16,7 @@
         <property name="hibernate.connection.port">
             3306
         </property>
-        <property name="connection.username">root</property>
+        <property name="connection.username">student</property>
         <property name="connection.password">98917tim</property>
 
         <!-- SQL dialect -->

@@ -52,10 +52,10 @@ public class CoordinateDao {
     public List<CoordinateObj> searchInClause(List<Integer> loopsId) {
         Session session = SessionFactoryProvider.getSessionFactory().openSession();
         Criteria criteria = session.createCriteria(CoordinateObj.class);
-        criteria.add(Restrictions.in("loop_id", loopsId));
-        List<CoordinateObj> coords = criteria.list();
+        criteria.add(Restrictions.in("loopId", loopsId));
+        List<CoordinateObj> returnList = criteria.list();
         session.close();
-        return coords;
+        return returnList;
     }
 
     public List<CoordinateObj> searchCoordinateObj(String fieldName, int searchVal) {
@@ -63,7 +63,8 @@ public class CoordinateDao {
         Criteria criteria = session.createCriteria(CoordinateObj.class);
         criteria.add(Restrictions.eq(fieldName, searchVal));
         System.out.println(criteria.list());
-        List<CoordinateObj> coords = criteria.list();
+        List<CoordinateObj> coords = new ArrayList<CoordinateObj>();
+        coords = (List<CoordinateObj>) criteria.list();
         session.close();
         return coords;
     }

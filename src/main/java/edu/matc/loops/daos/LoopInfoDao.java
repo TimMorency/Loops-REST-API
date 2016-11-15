@@ -65,11 +65,15 @@ public class LoopInfoDao {
         Session session = SessionFactoryProvider.getSessionFactory().openSession();
         Criteria criteria = session.createCriteria(LoopInfoObj.class);
         for(String fieldName : restrictMap.keySet()) {
-            if(fieldName == "x_size" || fieldName == "y_size" || fieldName == "num_loops" ||
-                    fieldName == "fail_count") {
+            if(fieldName == "xSize" || fieldName == "ySize" || fieldName == "numLoops" ||
+                    fieldName == "failCount") {
                 criteria.add(Restrictions.eq(fieldName, Integer.valueOf(restrictMap.get(fieldName))));
             } else {
-                criteria.add(Restrictions.eq(fieldName, Boolean.valueOf(restrictMap.get(fieldName))));
+                boolean checker = false;
+                if(restrictMap.get(fieldName) == "true") {
+                    checker = true;
+                }
+                criteria.add(Restrictions.eq(fieldName, checker));
             }
         }
         List<LoopInfoObj> liList = criteria.list();
