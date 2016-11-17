@@ -31,3 +31,5 @@
 
  - search by all form fields/ add to loops object.
  
+ 
+- search loops by id null catch. and if it doesnt exist catch.

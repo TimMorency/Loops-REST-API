@@ -45,13 +45,13 @@ public class LoopsService {
             @DefaultValue("false") @QueryParam("allowSameCoordinates") boolean allowSameCoordinates,
             @DefaultValue("false") @QueryParam("allowThroughStart") boolean allowThroughStart,
 
-            @DefaultValue("false") @QueryParam("variableLegSize") boolean variableLegSize,
+            @DefaultValue("false") @QueryParam("variableLegLength") boolean variableLegLength,
 
             @DefaultValue("") @QueryParam("returnType") String returnType) {
 
         Response queryResponse = getLoopsResponse(xSize,ySize,routeDistance,legSize,numLoops,sameFailCount,failCount,
                 allowDoubleBack, allowSameCoordinates,allowThroughStart,
-                variableLegSize, returnType);
+                variableLegLength, returnType);
         return queryResponse;
 
     }
@@ -97,7 +97,7 @@ public class LoopsService {
         LoopsObj lo = new LoopsObj();
         List<CoordinateObj> coords = new ArrayList<CoordinateObj>();
         lo = lDao.getLoopsObj(id);
-        logger.info(lo.getLoopId());
+        //logger.info(lo.getLoopId());
         coords = cDao.searchCoordinateObj("loopId", lo.getLoopId());
 
         String returner = lo.toString().substring(0, lo.toString().length() - 1);
@@ -155,8 +155,11 @@ public class LoopsService {
         for(LoopInfoObj l : lios) {
             loopInfoIds.add(l.getId());
         }
-        List<LoopsObj> los = ld.getLoopsFromLoopInfo(loopInfoIds);
 
+        List<LoopsObj> los = new ArrayList<LoopsObj>();
+        if(loopInfoIds.size() != 0) {
+            los = ld.getLoopsFromLoopInfo(loopInfoIds);
+        }
         List<CoordinateObj> coords = new ArrayList<CoordinateObj>();
         if(los.size() != 0) {
             List<Integer> loIds = new ArrayList<Integer>();
@@ -242,13 +245,19 @@ public class LoopsService {
         for(LoopInfoObj l : lios) {
             loopInfoIds.add(l.getId());
         }
-        List<LoopsObj> los = ld.getLoopsFromLoopInfo(loopInfoIds);
-        List<Integer> loIds = new ArrayList<Integer>();
-        for(LoopsObj lo : los) {
-            loIds.add(lo.getLoopId());
-        }
-        List<CoordinateObj> coords = cd.searchInClause(loIds);
 
+        List<LoopsObj> los = new ArrayList<LoopsObj>();
+        if(loopInfoIds.size() != 0) {
+            los = ld.getLoopsFromLoopInfo(loopInfoIds);
+        }
+        List<CoordinateObj> coords = new ArrayList<CoordinateObj>();
+        if(los.size() != 0) {
+            List<Integer> loIds = new ArrayList<Integer>();
+            for (LoopsObj lo : los) {
+                loIds.add(lo.getLoopId());
+            }
+            coords = cd.searchInClause(loIds);
+        }
         return Response
                 .status(200)
                 .entity(jsonReturnOfLoopInfo(lios, los, coords)).build();
@@ -270,19 +279,19 @@ public class LoopsService {
             @DefaultValue("false") @FormParam("allowSameCoordinates") boolean allowSameCoordinates,
             @DefaultValue("false") @FormParam("allowThroughStart") boolean allowThroughStart,
 
-            @DefaultValue("false") @FormParam("variableLegSize") boolean variableLegSize,
+            @DefaultValue("false") @FormParam("variableLegLength") boolean variableLegLength,
 
             @DefaultValue("") @FormParam("returnType") String returnType) {
 
         Response formResponse = getLoopsResponse(xSize,ySize,routeDistance,legSize,numLoops,sameFailCount,failCount,
                 allowDoubleBack, allowSameCoordinates,allowThroughStart,
-                variableLegSize, returnType);
+                variableLegLength, returnType);
         return formResponse;
     }
 
-    private Response getLoopsResponse(int xSize, int ySize, int routeDistance, int legSize, int numLoops,
+    public Response getLoopsResponse(int xSize, int ySize, int routeDistance, int legSize, int numLoops,
                                       int sameFailCount, int failCount, boolean allowDoubleBack, boolean allowSameCoordinates,
-                                      boolean allowThroughStart, boolean variableLegSize, String returnType){
+                                      boolean allowThroughStart, boolean variableLegLength, String returnType){
 
         //Check for defaulting value. If default, randomize.
         if(xSize == 0){
@@ -317,7 +326,7 @@ public class LoopsService {
         loopGenerator.setAllowDoubleBack(allowDoubleBack);
         loopGenerator.setAllowSameCoordinates(allowSameCoordinates);
         loopGenerator.setAllowThroughStart(allowThroughStart);
-        loopGenerator.setVariableNumLegs(variableLegSize);
+        loopGenerator.setVariableLegSize(variableLegLength);
 
         logger.debug("xSize:"+xSize);
         logger.debug("ySize:"+ySize);
@@ -329,7 +338,7 @@ public class LoopsService {
         logger.debug("allowDoubleBack:"+allowDoubleBack);
         logger.debug("allowSameCoordinate:"+allowSameCoordinates);
         logger.debug("allowThroughStart:"+allowThroughStart);
-        logger.debug("variableLegSize:"+variableLegSize);
+        logger.debug("variableLegSize:"+variableLegLength);
         logger.debug("returnType:"+returnType);
 
 
@@ -377,7 +386,7 @@ public class LoopsService {
         return "";
     }
 
-    private String convertToHTML(LoopGenerator loopGenerator){
+    public String convertToHTML(LoopGenerator loopGenerator){
         //Test loop generator:
         String html = "";
         html += getHTMLInfo();
@@ -390,7 +399,7 @@ public class LoopsService {
 
 
 
-    private String getHTMLInfo(){
+    public String getHTMLInfo(){
         //Loop Info
         String html = "";
         html += "<div>";
@@ -406,14 +415,14 @@ public class LoopsService {
         html += "<tr><td>Fail Count:</td>" + "<td>" + loopGenerator.getFailCount() + "</td></tr>";
         html += "<tr><td>Allow Double Back?</td>" + "<td>" + loopGenerator.getAllowDoubleBack() + "</td></tr>";
         html += "<tr><td>Allow Same Coordinates?</td>" + "<td>" + loopGenerator.getAllowSameCoordinates() + "</td></tr>";
-        html += "<tr><td>Allow Through Start?</td>" + "<td>" + loopGenerator.getAllowThroughStart() + "</td></tr>";
+        //html += "<tr><td>Allow Through Start?</td>" + "<td>" + loopGenerator.getAllowThroughStart() + "</td></tr>";
         html += "<tr><td>Variable Number of Legs?</td>" + "<td>" + loopGenerator.getVariableNumLegs() + "</td></tr>";
         html += "</table>";
         html += "</div>";
         return html;
     }
 
-    private String getHTMLCoordinatesAll(Map<LoopsObj, List<CoordinateObj>> loopsAndCoords){
+    public String getHTMLCoordinatesAll(Map<LoopsObj, List<CoordinateObj>> loopsAndCoords){
         String html="";
         //Coordinates
         html += "<div>";
@@ -425,7 +434,7 @@ public class LoopsService {
         return html;
     }
 
-    private String getHTMLCoordinates(LoopsObj l, Map<LoopsObj, List<CoordinateObj>> lAndC){
+    public String getHTMLCoordinates(LoopsObj l, Map<LoopsObj, List<CoordinateObj>> lAndC){
         String html = "";
         html += "<table>";
         for(CoordinateObj c : lAndC.get(l)){
@@ -436,7 +445,7 @@ public class LoopsService {
         return html;
     }
 
-    private String getHTMLGrids(Map<LoopsObj, List<CoordinateObj>> loopsAndCoords){
+    public String getHTMLGrids(Map<LoopsObj, List<CoordinateObj>> loopsAndCoords){
         String html="";
         String[][] grid;
 
@@ -471,7 +480,7 @@ public class LoopsService {
         return html;
     }
 
-    private String[][] getHTMLGridForLoop(LoopsObj loop){
+    public String[][] getHTMLGridForLoop(LoopsObj loop){
 
         int xSize = loopGenerator.getxSize();
         int ySize = loopGenerator.getySize();
@@ -500,17 +509,17 @@ public class LoopsService {
      * @param max
      * @return
      */
-    private int randomMultipleOfFive(int min, int max) {
+    public int randomMultipleOfFive(int min, int max) {
         int randomNum = ((min + (int)(Math.random() * ((max - min) + 1)))/5)*5;
         return randomNum;
     }
 
-    private int randomInt(int min, int max) {
+    public int randomInt(int min, int max) {
         int randomNum = (min + (int)(Math.random() * ((max - min) + 1)));
         return randomNum;
     }
 
-    private List<Integer> getFactors(int a){
+    public List<Integer> getFactors(int a){
         List<Integer> commonFactors = new ArrayList<Integer>();
         for(int i = 1; i<a; i++){
             if((double)a/i == a/i){

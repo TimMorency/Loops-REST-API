@@ -80,10 +80,8 @@ public class LoopsObj {
     public String toString() {
         return "LoopsObj{" +
                 "loopId=" + loopId +
-                ", numLegs=" + numLegs +
                 ", leglength=" + leglength +
                 ", routeDistance=" + routeDistance +
-                ", loopInfoId=" + loopInfoId +
                 '}';
     }
 }

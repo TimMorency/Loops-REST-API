@@ -123,14 +123,12 @@ public class LoopInfoObj {
     @Override
     public String toString() {
         return "LoopInfoObj{" +
-                "id=" + id +
-                ", xSize=" + xSize +
+                "xSize=" + xSize +
                 ", ySize=" + ySize +
                 ", numLoops=" + numLoops +
                 ", failCount=" + failCount +
                 ", allowDoubleBack=" + allowDoubleBack +
                 ", allowSameCoordinates=" + allowSameCoordinates +
-                ", allowThroughStart=" + allowThroughStart +
                 ", variableLegSize=" + variableLegSize +
                 '}';
     }

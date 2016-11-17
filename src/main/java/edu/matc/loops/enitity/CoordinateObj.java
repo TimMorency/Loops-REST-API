@@ -78,10 +78,8 @@ public class CoordinateObj {
     @Override
     public String toString() {
         return "CoordinateObj{" +
-                "coordinate_id=" + coordinate_id +
-                ", xCoord=" + xCoord +
-                ", yCoord=" + yCoord +
-                ", loopId=" + loopId +
+                "x=" + xCoord +
+                ", y=" + yCoord +
                 ", position=" + position +
                 '}';
     }
